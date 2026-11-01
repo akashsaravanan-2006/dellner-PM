@@ -1,0 +1,65 @@
+﻿.dpm .wa { display: grid; grid-template-columns: 340px minmax(0, 1fr); height: calc(100vh - 118px); min-height: 440px; background: #fff; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); }
+.dpm .wa-side { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--line); }
+.dpm .wa-top { display: flex; justify-content: space-between; align-items: center; padding: 16px 16px 8px; }
+.dpm .wa-top h2 { margin: 0; }
+.dpm .wa-search { margin: 6px 16px 10px; width: calc(100% - 32px); }
+.dpm .wa-list { flex: 1; overflow-y: auto; }
+.dpm .wa-label { padding: 14px 16px 6px; font-size: 12px; font-weight: 700; color: var(--mute); }
+.dpm .wa-item { display: flex; align-items: center; gap: 12px; width: 100%; margin: 0; padding: 10px 16px; border: 0; background: #fff; font: inherit; text-align: left; cursor: pointer; border-left: 4px solid transparent; }
+.dpm .wa-item:hover { background: var(--bg); }
+.dpm .wa-item.on { background: var(--blue-soft); border-left-color: var(--blue); }
+.dpm .wa-meta { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.dpm .wa-meta b { color: var(--navy); }
+.dpm .wa-meta .muted { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+.dpm .wa-phone { font-size: 13px; font-weight: 600; color: var(--blue); }
+.dpm .wa-item .badge { margin-left: 0; background: var(--blue); color: #fff; }
+.dpm .wa-main { display: flex; flex-direction: column; min-width: 0; min-height: 0; background: var(--bg); }
+.dpm .wa-head { display: flex; align-items: center; gap: 12px; padding: 12px 18px; background: #fff; border-bottom: 1px solid var(--line); }
+.dpm .wa-head .grow { flex: 1; min-width: 0; }
+.dpm .wa-head .muted { font-size: 13px; }
+.dpm .wa-msgs { flex: 1; display: flex; flex-direction: column; gap: 8px; padding: 18px; overflow-y: auto; }
+.dpm .msg { position: relative; max-width: 68%; align-self: flex-start; padding: 8px 12px 6px; background: #fff; border-radius: 12px 12px 12px 2px; box-shadow: 0 1px 1px rgba(6, 40, 61, .08); }
+.dpm .msg.hasmenu { padding-right: 30px; }
+.dpm .msg.mine { align-self: flex-end; background: var(--blue); color: #fff; border-radius: 12px 12px 2px 12px; }
+.dpm .msg p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.dpm .msg small { display: block; text-align: right; color: var(--mute); font-size: 11px; }
+.dpm .msg.mine small { color: #CFE4F5; }
+.dpm .msg .who-name { text-align: left; color: var(--blue); font-weight: 800; }
+.dpm .msg .gone-text { font-style: italic; opacity: .7; }
+.dpm .msg.gone { box-shadow: none; border: 1px dashed var(--line); }
+
+/* photos and files inside messages */
+.dpm .msg-img { display: block; width: 100%; max-width: 260px; max-height: 260px; margin-bottom: 4px; border-radius: 8px; object-fit: cover; cursor: pointer; }
+.dpm .msg-img.ph { height: 110px; display: grid; place-items: center; background: rgba(6, 40, 61, .07); font-size: 12px; cursor: default; }
+.dpm .msg-file { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; padding: 8px 10px; border-radius: 8px; background: rgba(6, 40, 61, .06); }
+.dpm .msg.mine .msg-file { background: rgba(255, 255, 255, .18); }
+.dpm .msg-file-info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.dpm .msg-file-info b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
+.dpm .msg-file-info span { font-size: 12px; opacity: .75; }
+.dpm .msg-file-dl { display: flex; margin: 0; padding: 6px; border: 0; border-radius: 50%; background: none; color: inherit; cursor: pointer; }
+.dpm .msg-file-dl:hover { background: rgba(6, 40, 61, .12); }
+
+/* edit and delete menu */
+.dpm .msg-menu-wrap { position: absolute; top: 4px; right: 4px; }
+.dpm .msg-dots { display: flex; margin: 0; padding: 3px; border: 0; border-radius: 50%; background: none; color: inherit; cursor: pointer; opacity: 0; transition: opacity .15s; }
+.dpm .msg:hover .msg-dots, .dpm .msg-dots:focus-visible { opacity: .85; }
+@media (hover: none) { .dpm .msg-dots { opacity: .85; } }
+.dpm .msg-menu { position: absolute; top: 26px; right: 0; z-index: 5; min-width: 120px; padding: 4px; background: #fff; border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow); }
+.dpm .msg-menu button { display: flex; align-items: center; gap: 8px; width: 100%; margin: 0; padding: 8px 10px; border: 0; border-radius: 6px; background: none; color: var(--ink); font: inherit; font-size: 14px; text-align: left; cursor: pointer; }
+.dpm .msg-menu button:hover { background: var(--bg); }
+.dpm .edit-box { display: flex; gap: 6px; align-items: center; margin-bottom: 2px; }
+.dpm .edit-box input { flex: 1; min-width: 160px; }
+
+/* attachment preview and message box */
+.dpm .wa-attach { display: flex; align-items: center; gap: 12px; padding: 8px 16px; background: #fff; border-top: 1px solid var(--line); }
+.dpm .wa-attach img { width: 52px; height: 52px; border-radius: 8px; object-fit: cover; }
+.dpm .wa-attach-info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.dpm .wa-attach-info b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dpm .wa-form { display: flex; gap: 8px; padding: 12px 16px; background: #fff; border-top: 1px solid var(--line); }
+.dpm .wa-form input:not([type="file"]) { flex: 1; min-width: 0; }
+.dpm .wa-empty { margin: auto; }
+.dpm .pick-list { max-height: 240px; overflow-y: auto; border: 1px solid var(--line); border-radius: 8px; }
+.dpm .pick { display: flex; align-items: center; gap: 10px; padding: 8px 12px; cursor: pointer; font-weight: 500; }
+.dpm .pick:hover { background: var(--bg); }
+.dpm .pick input { width: auto; }
+@media (max-width: 760px) { .dpm .wa { grid-template-columns: 1fr; height: auto; } .dpm .wa-side { max-height: 320px; border-right: 0; border-bottom: 1px solid var(--line); } .dpm .wa-main { min-height: 420px; } }

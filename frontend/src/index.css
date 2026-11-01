@@ -1,0 +1,11 @@
+﻿/* Global reset and typography */
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+button, input, select, textarea {
+  font: inherit;
+}

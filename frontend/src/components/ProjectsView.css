@@ -1,0 +1,12 @@
+.dpm .pv-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; align-items: end; margin-bottom: 18px; }
+.dpm .pv-form textarea { grid-column: 1 / -1; min-height: 80px; resize: vertical; }
+.dpm .pv-form label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--mute); }
+.dpm .pv-form .btn { width: fit-content; }
+.dpm .pv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+.dpm .pv-card { border-top: 4px solid var(--blue); }
+.dpm .pv-card h3 { color: var(--navy); }
+.dpm .pv-card input[type=range] { padding: 0; border: 0; margin-top: 10px; accent-color: var(--blue); }
+.dpm .pv-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+
+.dpm .pv-card.late { border-top-color: var(--bad); }
+.dpm .pv-card.late .due { color: var(--bad); font-weight: 700; }

@@ -1,0 +1,9 @@
+﻿.dpm .notif { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.dpm .notif:last-child { border-bottom: 0; }
+.dpm .notif small { margin-left: auto; white-space: nowrap; }
+.dpm .notif-ico { display: grid; place-items: center; flex: none; width: 36px; height: 36px; border-radius: 50%; background: var(--blue-soft); color: var(--blue); }
+.dpm .notif.birthday .notif-ico { background: var(--blue); color: #fff; }
+.dpm .notif.birthday { font-weight: 700; }
+
+.dpm .notif.deadline { color: var(--bad); font-weight: 700; }
+.dpm .notif.deadline .notif-ico { background: #FDECEA; color: var(--bad); }

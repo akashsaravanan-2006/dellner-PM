@@ -1,0 +1,49 @@
+﻿.dpm .bday { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; padding: 16px 20px; border-radius: 12px; background: var(--blue); color: #fff; }
+.dpm .bday b { font-size: 17px; }
+.dpm .dash-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 18px; }
+.dpm .stat { display: flex; flex-direction: column; gap: 2px; width: 100%; margin: 0; font: inherit; text-align: left; color: var(--mute); border-left: 5px solid var(--blue); }
+.dpm button.stat { cursor: pointer; }
+.dpm button.stat:hover { background: var(--blue-soft); }
+.dpm .stat b { font-size: 34px; line-height: 1.1; font-weight: 800; color: var(--navy); }
+.dpm .stat small { color: var(--ink); font-size: 13px; }
+.dpm .dash-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+.dpm .dash-proj { padding: 12px 0; border-bottom: 1px solid var(--line); }
+.dpm .dash-proj:last-child { border-bottom: 0; }
+@media (max-width: 900px) { .dpm .dash-cols { grid-template-columns: 1fr; } }
+
+.dpm .deadline { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 18px; padding: 16px 20px; border-radius: 12px; background: #FDECEA; border: 1px solid #F0B3AA; color: #8E1F12; }
+.dpm .deadline b { display: block; margin-bottom: 4px; font-size: 17px; }
+.dpm .dash-proj.late { padding-left: 12px; border-left: 4px solid var(--bad); }
+.dpm .dash-proj.late .muted { color: var(--bad); font-weight: 700; }
+
+/* team leave information banner */
+.dpm .leave-alert { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 18px; padding: 16px 20px; border-radius: 12px; background: #EAF1FF; border: 1px solid #B9CDF5; color: var(--navy); }
+.dpm .leave-alert b { display: block; margin-bottom: 4px; font-size: 17px; }
+.dpm .leave-alert svg { flex: 0 0 auto; }
+
+/* to-do list */
+.dpm .todo-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); transition: opacity .4s; }
+.dpm .todo-item:last-child { border-bottom: 0; }
+.dpm .todo-check { background: none; border: 0; padding: 0; margin: 0; cursor: pointer; display: flex; color: var(--mute); }
+.dpm .todo-check:hover { color: var(--blue); }
+.dpm .todo-text { display: flex; flex-direction: column; gap: 2px; font-size: 15px; }
+.dpm .todo-item.done { opacity: .45; }
+.dpm .todo-item.done .todo-text span { text-decoration: line-through; }
+.dpm .todo-item.done .todo-check { color: var(--blue); }
+
+/* meeting reminder banner */
+.dpm .meeting-alert { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 18px; padding: 16px 20px; border-radius: 12px; background: #FFF4D6; border: 1px solid #F2D07A; color: #7A5200; }
+.dpm .meeting-alert b { display: block; margin-bottom: 4px; font-size: 17px; }
+
+/* today's meetings */
+.dpm .meet-panel { margin-bottom: 18px; }
+.dpm .meet-item { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.dpm .meet-item:last-child { border-bottom: 0; }
+.dpm .meet-time { flex: 0 0 82px; font-weight: 800; color: var(--navy); }
+.dpm .meet-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.dpm .meet-item.started { opacity: .55; }
+.dpm .meet-item.soon .meet-time { color: #B26A00; }
+.dpm .meet-tag { padding: 3px 10px; border-radius: 99px; background: var(--blue-soft); color: var(--blue-dark); font-size: 12px; font-weight: 700; }
+.dpm .meet-tag.soon { background: #FFE7A3; color: #7A5200; }
+.dpm .meet-tag.started { background: #E5E7EB; color: #475569; }
+.dpm .meta { display: inline-flex; align-items: center; gap: 3px; margin-left: 10px; }

@@ -1,0 +1,8 @@
+﻿.dpm .profile { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 28px; max-width: 820px; }
+.dpm .profile-photo { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.dpm .profile-photo .avatar { font-size: 48px; }
+.dpm .profile-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-content: start; }
+.dpm .profile-fields label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 700; color: var(--mute); }
+.dpm .profile-fields .full { grid-column: 1 / -1; margin: 0; }
+.dpm .profile-fields .full-btn { grid-column: 1 / -1; justify-self: start; }
+@media (max-width: 760px) { .dpm .profile { grid-template-columns: 1fr; } .dpm .profile-fields { grid-template-columns: 1fr; } }

@@ -1,0 +1,3 @@
+﻿.dpm .leave-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; align-items: center; margin-bottom: 18px; }
+.dpm .leave-form .btn { width: 100%; }
+.dpm .leave-now { color: var(--blue); }

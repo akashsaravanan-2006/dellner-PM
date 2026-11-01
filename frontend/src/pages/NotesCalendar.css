@@ -1,0 +1,31 @@
+.dpm .cal-wrap { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+.dpm .cal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.dpm .cal-head h2 { margin: 0; }
+.dpm .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.dpm .cal-dow { padding: 4px 0; text-align: center; font-size: 12px; font-weight: 700; color: var(--mute); }
+.dpm .cal-day {
+  position: relative; display: flex; align-items: flex-start; justify-content: flex-start; min-height: 64px; padding: 8px;
+  border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); font: inherit; font-weight: 700; cursor: pointer;
+}
+.dpm .cal-day:hover { background: var(--blue-soft); }
+.dpm .cal-day.today { border-color: var(--blue); }
+.dpm .cal-day.today span { color: var(--blue); }
+.dpm .cal-day.sel { background: var(--blue); border-color: var(--blue); color: #fff; }
+.dpm .cal-day.sel span { color: #fff; }
+.dpm .cal-dot { position: absolute; right: 6px; bottom: 6px; min-width: 20px; padding: 1px 6px; border-radius: 99px; background: var(--blue-soft); color: var(--blue-dark); font-size: 11px; font-style: normal; font-weight: 800; text-align: center; }
+.dpm .cal-day.sel .cal-dot { background: #fff; }
+@media (max-width: 900px) { .dpm .cal-wrap { grid-template-columns: 1fr; } .dpm .cal-day { min-height: 48px; } }
+
+/* meeting booking */
+.dpm .meet-form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 8px; }
+.dpm .meet-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.dpm .meet-row input[type="time"] { flex: 0 0 150px; }
+.dpm .meet-row input:not([type="time"]) { flex: 1 1 140px; }
+.dpm .meet-form .btn { align-self: flex-start; }
+.dpm .meet-who { display: flex; flex-direction: column; gap: 6px; }
+.dpm .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.dpm .chip { padding: 5px 12px; border: 1px solid var(--line); border-radius: 99px; background: #fff; color: var(--ink); font: inherit; font-size: 13px; cursor: pointer; }
+.dpm .chip:hover { background: var(--blue-soft); }
+.dpm .chip.on { background: var(--blue); border-color: var(--blue); color: #fff; }
+.dpm .meet-day-title { margin-top: 18px; font-size: 16px; }
+.dpm .meta { display: inline-flex; align-items: center; gap: 3px; margin-right: 10px; }

@@ -1,0 +1,4 @@
+﻿.dpm .access-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; align-items: center; margin-bottom: 14px; }
+.dpm .access-form .btn { width: 100%; }
+.dpm .access-actions { text-align: right; white-space: nowrap; }
+.dpm .access-actions .btn { margin-left: 8px; padding: 7px 12px; font-size: 13px; }
