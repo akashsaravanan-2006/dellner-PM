@@ -113,7 +113,7 @@ const STATUSES = ['upcoming', 'current', 'completed'];
 const SERVICES = ['New project', 'Service project', 'R&D project'];
 const projectValue = (k, v) => {
   if (k === 'progress') return Math.min(100, Math.max(0, parseInt(v, 10) || 0));
-  if (k === 'quantity') { const n = parseInt(v, 10); return Number.isNaN(n) ? null : Math.max(0, n); }
+
   if (k === 'service') return SERVICES.includes(v) ? v : null;
   return clean(typeof v === 'string' ? v.trim() : v);
 };
@@ -488,7 +488,8 @@ async function migrate() {
   await addCol('ALTER TABLE projects ADD COLUMN members VARCHAR(500) NULL');
   await addCol('ALTER TABLE projects ADD COLUMN project_no VARCHAR(60) NULL');
   await addCol('ALTER TABLE projects ADD COLUMN service VARCHAR(30) NULL');
-  await addCol('ALTER TABLE projects ADD COLUMN quantity INT NULL');
+    await addCol('ALTER TABLE projects ADD COLUMN quantity INT NULL');
+  await db.query('ALTER TABLE projects MODIFY quantity VARCHAR(40) NULL').catch(() => {});
   // project dates are optional (empty date is saved as NULL and shown as TBD)
   await db.query('ALTER TABLE projects MODIFY start_date DATE NULL, MODIFY due_date DATE NULL').catch(() => {});
   await db.query(`CREATE TABLE IF NOT EXISTS workout_items (

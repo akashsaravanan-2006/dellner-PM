@@ -1,12 +1,14 @@
 ﻿import { useEffect, useState } from 'react';
 import { Plus, Pencil, Trash2, Users, Play, CircleCheck, Search } from 'lucide-react';
 import { api } from '../api';
+import './ProjectTracker.css';
 
 const pad = (n) => String(n).padStart(2, '0');
 const todayStr = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
 
 const STATUS = { current: 'Ongoing', upcoming: 'Upcoming', completed: 'Completed' };
 const RANK = { current: 0, upcoming: 1, completed: 2 };
+const STATUS_FILTERS = [['all', 'All status'], ['current', 'Ongoing'], ['completed', 'Completed'], ['upcoming', 'Upcoming']];
 const SERVICES = ['New project', 'Service project', 'R&D project'];
 const BLANK = {
   name: '', client: '', project_no: '', service: 'New project', quantity: '', members: '',
@@ -14,12 +16,30 @@ const BLANK = {
 };
 const names = (s) => (s || '').split(',').map((x) => x.trim()).filter(Boolean);
 const uname = (u) => u.full_name || u.username;
+const clampPct = (v) => Math.min(100, Math.max(0, Math.round(+v || 0)));
+
+// small box where you type the work progress (for example 5, 10, 15) and press Update
+function ProgressEntry({ value, onSave }) {
+  const [v, setV] = useState(String(value));
+  useEffect(() => { setV(String(value)); }, [value]);
+  const submit = (e) => { e.preventDefault(); onSave(clampPct(v)); };
+  return (
+    <form className="pj-enter" onSubmit={submit}>
+      <label>
+        <span>Enter work progress (%)</span>
+        <input type="number" min="0" max="100" value={v} onChange={(e) => setV(e.target.value)} placeholder="e.g. 5, 10, 15" />
+      </label>
+      <button className="btn" type="submit">Update</button>
+    </form>
+  );
+}
 
 export default function ProjectTracker({ user, start = 'all' }) {
   const isAdmin = user.role === 'admin';
   const [projects, setProjects] = useState([]);
   const [users, setUsers] = useState([]);
-  const [filter, setFilter] = useState(start);
+  const [statusF, setStatusF] = useState(start);
+  const [typeF, setTypeF] = useState('all');
   const [q, setQ] = useState('');
   const [form, setForm] = useState(null);
   const [editId, setEditId] = useState(null);
@@ -29,10 +49,13 @@ export default function ProjectTracker({ user, start = 'all' }) {
   const load = () => api.get('/projects').then(setProjects).catch((x) => setErr(x.message));
   useEffect(() => { load(); api.get('/users').then(setUsers).catch(() => {}); }, []);
 
-  const count = (s) => projects.filter((p) => p.status === s).length;
+  const countStatus = (s) => (s === 'all' ? projects.length : projects.filter((p) => p.status === s).length);
+  const countType = (t) => (t === 'all' ? projects.length : projects.filter((p) => p.service === t).length);
+
   const ql = q.trim().toLowerCase();
   const shown = projects
-    .filter((p) => filter === 'all' || p.status === filter)
+    .filter((p) => statusF === 'all' || p.status === statusF)
+    .filter((p) => typeF === 'all' || p.service === typeF)
     .filter((p) => !ql || [p.name, p.client, p.project_no].some((v) => (v || '').toLowerCase().includes(ql)))
     .sort((a, b) => RANK[a.status] - RANK[b.status]);
   const today = todayStr();
@@ -45,7 +68,11 @@ export default function ProjectTracker({ user, start = 'all' }) {
 
   const openAdd = () => {
     setEditId(null); setFormErr('');
-    setForm({ ...BLANK, status: filter !== 'all' ? filter : 'upcoming' });
+    setForm({
+      ...BLANK,
+      status: statusF !== 'all' ? statusF : 'upcoming',
+      service: typeF !== 'all' ? typeF : 'New project',
+    });
   };
   const openEdit = (p) => {
     setEditId(p.id); setFormErr('');
@@ -60,18 +87,32 @@ export default function ProjectTracker({ user, start = 'all' }) {
   const save = async (e) => {
     e.preventDefault();
     if (form.start_date && form.due_date && form.due_date < form.start_date) return setFormErr('End date is before start date');
-    const progress = form.status === 'completed' ? 100 : form.status === 'upcoming' ? 0 : Math.min(100, Math.max(0, +form.progress || 0));
-    const body = { ...form, progress };
+    let status = form.status;
+    const progress = status === 'completed' ? 100 : status === 'upcoming' ? 0 : clampPct(form.progress);
+    if (status === 'current' && progress >= 100) status = 'completed';
     try {
+      const body = { ...form, status, progress: status === 'completed' ? 100 : progress };
       if (editId) await api.put('/projects/' + editId, body);
       else await api.post('/projects', body);
       close(); setErr(''); load();
     } catch (x) { setFormErr(x.message); }
   };
 
-  const move = async (p, status) => {
-    try { await api.put('/projects/' + p.id, { status, progress: status === 'completed' ? 100 : p.progress }); setErr(''); load(); }
+  // Start button: upcoming -> ongoing
+  const startProject = async (p) => {
+    try { await api.put('/projects/' + p.id, { status: 'current' }); setErr(''); load(); }
     catch (x) { setErr(x.message); }
+  };
+  const complete = async (p) => {
+    try { await api.put('/projects/' + p.id, { status: 'completed', progress: 100 }); setErr(''); load(); }
+    catch (x) { setErr(x.message); }
+  };
+  // typed progress: 100 moves the project to Completed
+  const saveProgress = async (p, v) => {
+    try {
+      await api.put('/projects/' + p.id, v >= 100 ? { progress: 100, status: 'completed' } : { progress: v });
+      setErr(''); load();
+    } catch (x) { setErr(x.message); }
   };
   const remove = async (p) => {
     if (!window.confirm('Delete the project "' + p.name + '"? This cannot be undone.')) return;
@@ -79,11 +120,11 @@ export default function ProjectTracker({ user, start = 'all' }) {
     catch (x) { setErr(x.message); }
   };
 
-  const tabs = [
-    ['current', 'Ongoing', count('current')],
-    ['upcoming', 'Upcoming', count('upcoming')],
-    ['completed', 'Completed', count('completed')],
-    ['all', 'All projects', projects.length],
+  const cards = [
+    ['all', 'Total', countStatus('all')],
+    ['current', 'Ongoing', countStatus('current')],
+    ['completed', 'Completed', countStatus('completed')],
+    ['upcoming', 'Upcoming', countStatus('upcoming')],
   ];
 
   return (
@@ -93,65 +134,97 @@ export default function ProjectTracker({ user, start = 'all' }) {
         <button className="btn" onClick={openAdd}><Plus size={16} /> Add project</button>
       </div>
 
-      <div className="pj-stats">
-        {tabs.map(([k, label, n]) => (
-          <button key={k} className={'panel pj-stat ' + k + (filter === k ? ' on' : '')} onClick={() => setFilter(k)}>
-            <b>{n}</b>{label}
+      {/* TOP: Total / Ongoing / Completed / Upcoming */}
+      <div className="pj-top-stats">
+        {cards.map(([k, label, n]) => (
+          <button key={k} type="button" className={'panel pj-tile ' + k + (statusF === k ? ' on' : '')} onClick={() => setStatusF(k)}>
+            <b>{n}</b>
+            <span>{label}</span>
           </button>
         ))}
       </div>
 
-      <div className="pj-search">
-        <Search size={16} />
-        <input placeholder="Search by project name, customer or project number" value={q} onChange={(e) => setQ(e.target.value)} />
-      </div>
-      {err && <p className="error">{err}</p>}
+      <div className="pj-layout">
+        {/* LEFT: two filters */}
+        <aside className="panel pj-side">
+          <h3>Project type</h3>
+          <button type="button" className={'pj-filter' + (typeF === 'all' ? ' on' : '')} onClick={() => setTypeF('all')}>
+            <span className="pj-filter-name">All types</span><b className="pj-filter-n">{countType('all')}</b>
+          </button>
+          {SERVICES.map((s) => (
+            <button key={s} type="button" className={'pj-filter' + (typeF === s ? ' on' : '')} onClick={() => setTypeF(s)}>
+              <span className="pj-filter-name">{s}</span><b className="pj-filter-n">{countType(s)}</b>
+            </button>
+          ))}
 
-      {shown.length === 0 && (
-        <p className="muted">{projects.length === 0 ? 'No projects yet. Click "Add project" to create the first one.' : 'No projects match this filter.'}</p>
-      )}
+          <h3 className="pj-h3-gap">Status</h3>
+          {STATUS_FILTERS.map(([k, label]) => (
+            <button key={k} type="button" className={'pj-filter ' + k + (statusF === k ? ' on' : '')} onClick={() => setStatusF(k)}>
+              <i className="pj-dot" />
+              <span className="pj-filter-name">{label}</span>
+              <b className="pj-filter-n">{countStatus(k)}</b>
+            </button>
+          ))}
+        </aside>
 
-      <div className="pj-list">
-        {shown.map((p) => {
-          const late = p.status === 'current' && p.due_date && p.due_date < today;
-          return (
-            <div key={p.id} className={'panel pj-card ' + p.status + (late ? ' late' : '')}>
-              <div className="pj-top">
-                <div>
-                  <b className="pj-name">{p.name}</b>
-                  <div className="pj-sub">{[p.project_no && 'No. ' + p.project_no, p.client].filter(Boolean).join(' · ') || 'No customer yet'}</div>
+        {/* RIGHT: search + project cards */}
+        <div className="pj-main">
+          <div className="pj-search">
+            <Search size={16} />
+            <input placeholder="Search by project name, customer or project number" value={q} onChange={(e) => setQ(e.target.value)} />
+          </div>
+          {err && <p className="error">{err}</p>}
+
+          {shown.length === 0 && (
+            <p className="muted">{projects.length === 0 ? 'No projects yet. Click "Add project" to create the first one.' : 'No projects match these filters.'}</p>
+          )}
+
+          <div className="pj-list">
+            {shown.map((p) => {
+              const late = p.status === 'current' && p.due_date && p.due_date < today;
+              return (
+                <div key={p.id} className={'panel pj-card ' + p.status + (late ? ' late' : '')}>
+                  <div className="pj-head">
+                    <div className="pj-title">
+                      <b className="pj-name">{p.name}</b>
+                      <div className="pj-sub">{[p.project_no && 'No. ' + p.project_no, p.client].filter(Boolean).join(' · ') || 'No customer yet'}</div>
+                    </div>
+                    <span className={'pj-status ' + p.status}>{late ? 'Overdue' : STATUS[p.status] || p.status}</span>
+                  </div>
+
+                  <div className="pj-facts">
+                    <div className="pj-fact"><small>Project type</small><b>{p.service || '-'}</b></div>
+                    <div className="pj-fact"><small>Quantity</small><b>{p.quantity || '-'}</b></div>
+                    <div className="pj-fact"><small>Start</small><b>{p.start_date || 'TBD'}</b></div>
+                    <div className="pj-fact"><small>End</small><b>{p.due_date || 'TBD'}</b></div>
+                  </div>
+
+                  {p.members ? <div className="pj-members"><Users size={14} /> {p.members}</div> : null}
+                  {p.description ? <p className="pj-desc">{p.description}</p> : null}
+
+                  <div className="pj-progress">
+                    <div className="pj-bar"><span style={{ width: (p.progress || 0) + '%' }} /></div>
+                    <b className="pj-pct">{p.progress || 0}%</b>
+                  </div>
+
+                  {p.status === 'current' && <ProgressEntry value={p.progress || 0} onSave={(v) => saveProgress(p, v)} />}
+
+                  <div className="pj-actions">
+                    {p.status === 'upcoming' && <button className="btn ghost" onClick={() => startProject(p)}><Play size={14} /> Start</button>}
+                    {p.status === 'current' && <button className="btn ghost" onClick={() => complete(p)}><CircleCheck size={14} /> Complete</button>}
+                    <button className="btn ghost" onClick={() => openEdit(p)}><Pencil size={14} /> Edit</button>
+                    {isAdmin && <button className="btn ghost pj-del" onClick={() => remove(p)}><Trash2 size={14} /> Delete</button>}
+                  </div>
                 </div>
-                <span className={'pj-status ' + p.status}>{late ? 'Overdue' : STATUS[p.status] || p.status}</span>
-              </div>
-
-              <div className="pj-facts">
-                {p.service ? <span className="pj-tag">{p.service}</span> : null}
-                {p.quantity != null ? <span>Quantity: <b>{p.quantity}</b></span> : null}
-                <span>Start: <b>{p.start_date || 'TBD'}</b></span>
-                <span>End: <b>{p.due_date || 'TBD'}</b></span>
-              </div>
-
-              {p.members ? <div className="pj-members"><Users size={14} /> {p.members}</div> : null}
-              {p.description ? <p className="pj-desc">{p.description}</p> : null}
-
-              <div className="pj-bar"><span style={{ width: (p.progress || 0) + '%' }} /></div>
-              <div className="pj-foot">
-                <small className="muted">{p.progress || 0}% done</small>
-                <div className="pj-actions">
-                  {p.status === 'upcoming' && <button className="btn ghost" onClick={() => move(p, 'current')}><Play size={14} /> Start</button>}
-                  {p.status === 'current' && <button className="btn ghost" onClick={() => move(p, 'completed')}><CircleCheck size={14} /> Complete</button>}
-                  <button className="btn ghost" onClick={() => openEdit(p)}><Pencil size={14} /> Edit</button>
-                  {isAdmin && <button className="btn ghost pj-del" onClick={() => remove(p)}><Trash2 size={14} /> Delete</button>}
-                </div>
-              </div>
-            </div>
-          );
-        })}
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       {form && (
-        <div className="modal-bg" onClick={close}>
-          <form className="modal panel pj-modal" onClick={(e) => e.stopPropagation()} onSubmit={save}>
+        <div className="pj-overlay" onClick={close}>
+          <form className="pj-dialog" onClick={(e) => e.stopPropagation()} onSubmit={save}>
             <h2>{editId ? 'Edit project' : 'Add project'}</h2>
             <div className="pj-grid">
               <label className="full">Project name
@@ -163,14 +236,14 @@ export default function ProjectTracker({ user, start = 'all' }) {
               <label>Project number
                 <input value={form.project_no} onChange={set('project_no')} />
               </label>
-              <label>Service
+              <label>Project type
                 <select value={form.service} onChange={set('service')}>
-                  <option value="">Select service</option>
+                  <option value="">Select type</option>
                   {SERVICES.map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>
               </label>
               <label>Quantity
-                <input type="number" min="0" step="1" value={form.quantity} onChange={set('quantity')} />
+                <input value={form.quantity} onChange={set('quantity')} placeholder="e.g. 10 nos, 5 sets" maxLength={40} />
               </label>
               <label>Status
                 <select value={form.status} onChange={set('status')}>
@@ -179,11 +252,11 @@ export default function ProjectTracker({ user, start = 'all' }) {
                   <option value="completed">Completed</option>
                 </select>
               </label>
-              {form.status === 'current' && (
-                <label>Progress (%)
-                  <input type="number" min="0" max="100" value={form.progress} onChange={set('progress')} />
+              {form.status === 'current' ? (
+                <label>Work progress (%)
+                  <input type="number" min="0" max="100" value={form.progress} onChange={set('progress')} placeholder="e.g. 5, 10, 15" />
                 </label>
-              )}
+              ) : <div className="pj-spacer" />}
               <label>Start date (optional)
                 <input type="date" value={form.start_date} onChange={set('start_date')} />
               </label>
@@ -203,7 +276,7 @@ export default function ProjectTracker({ user, start = 'all' }) {
               </label>
             </div>
             {formErr && <p className="error">{formErr}</p>}
-            <div className="modal-actions">
+            <div className="pj-dialog-actions">
               <button type="button" className="btn ghost" onClick={close}>Cancel</button>
               <button className="btn">{editId ? 'Save changes' : 'Add project'}</button>
             </div>

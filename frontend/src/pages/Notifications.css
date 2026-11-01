@@ -1,9 +1,25 @@
-﻿.dpm .notif { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
-.dpm .notif:last-child { border-bottom: 0; }
-.dpm .notif small { margin-left: auto; white-space: nowrap; }
-.dpm .notif-ico { display: grid; place-items: center; flex: none; width: 36px; height: 36px; border-radius: 50%; background: var(--blue-soft); color: var(--blue); }
-.dpm .notif.birthday .notif-ico { background: var(--blue); color: #fff; }
-.dpm .notif.birthday { font-weight: 700; }
+﻿.dpm .cal-side { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
 
-.dpm .notif.deadline { color: var(--bad); font-weight: 700; }
-.dpm .notif.deadline .notif-ico { background: #FDECEA; color: var(--bad); }
+.dpm .nt-clear { display: inline-flex; align-items: center; gap: 6px; }
+.dpm .nt-clear:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.dpm .nt-item {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 14px 4px; border-bottom: 1px solid var(--line);
+}
+.dpm .nt-item:last-child { border-bottom: none; }
+
+.dpm .nt-icon {
+  flex: 0 0 40px; width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 10px; background: var(--blue-soft); color: var(--blue);
+}
+.dpm .nt-body {
+  display: flex; flex-direction: column; gap: 3px; min-width: 0;
+  color: var(--ink); font-size: 15px; line-height: 1.4;
+}
+.dpm .nt-body small { font-size: 12px; }
+
+.dpm .nt-item.meeting .nt-icon { background: var(--blue-soft); color: var(--blue); }
+.dpm .nt-item.todo .nt-icon    { background: #e6f6ec; color: #1f8a4c; }
+.dpm .nt-item.chat .nt-icon    { background: #fff4e0; color: #c77700; }

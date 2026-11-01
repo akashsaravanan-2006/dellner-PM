@@ -1,40 +1,72 @@
 ﻿import { useEffect, useState } from 'react';
-import { Cake, StickyNote, MessageCircle, Briefcase, Plane, AlarmClock } from 'lucide-react';
+import { CalendarDays, CircleCheck, MessageCircle, Bell, Trash2 } from 'lucide-react';
 import { api } from '../api';
 import './Notifications.css';
 
-const ICON = { birthday: Cake, reminder: StickyNote, deadline: AlarmClock, chat: MessageCircle, leave: Plane };
+const ICON = { meeting: CalendarDays, todo: CircleCheck, chat: MessageCircle };
 
-export default function Notifications() {
+export default function Notifications({ onChange, embedded = false, refreshKey = 0 }) {
   const [items, setItems] = useState([]);
-  useEffect(() => { api.get('/notifications').then(setItems); }, []);
-  const now = items.filter((i) => !i.at);
-  const recent = items.filter((i) => i.at);
+  const [err, setErr] = useState('');
+  const [busy, setBusy] = useState(false);
 
-  const Row = ({ i }) => {
-    const Icon = ICON[i.kind] || Briefcase;
-    return (
-      <div className={'notif ' + i.kind}>
-        <span className="notif-ico"><Icon size={18} /></span>
-        <span>{i.text}</span>
-        {i.at && <small className="muted">{i.at.slice(0, 16)}</small>}
-      </div>
-    );
+  const load = () => api.get('/notifications').then(setItems).catch((x) => setErr(x.message));
+
+  // reload on open, whenever refreshKey changes (after booking), and every 30 seconds
+  useEffect(() => {
+    load();
+    const i = setInterval(load, 30000);
+    return () => clearInterval(i);
+  }, [refreshKey]);
+
+  const clearAll = async () => {
+    setBusy(true);
+    try {
+      await api.post('/notifications/clear');
+      setItems([]);
+      setErr('');
+      if (onChange) onChange();
+    } catch (x) { setErr(x.message); }
+    setBusy(false);
   };
+
+  const clearBtn = (
+    <button className="btn ghost nt-clear" onClick={clearAll} disabled={busy || items.length === 0}>
+      <Trash2 size={16} /> Clear all
+    </button>
+  );
 
   return (
     <div>
-      <div className="page-head"><h1>Notifications</h1></div>
-      <section className="panel">
-        <h2>Today</h2>
-        {now.length === 0 && <p className="muted">You are all caught up. Birthdays, reminders and unread chats show here.</p>}
-        {now.map((i, k) => <Row key={k} i={i} />)}
-      </section>
-      <section className="panel notif-recent">
-        <h2>Recent activity</h2>
-        {recent.length === 0 && <p className="muted">Project progress and leave updates will appear here.</p>}
-        {recent.map((i, k) => <Row key={k} i={i} />)}
-      </section>
+      {embedded ? (
+        <div className="cal-head">
+          <h2>Notifications</h2>
+          {clearBtn}
+        </div>
+      ) : (
+        <div className="page-head">
+          <h1>Notifications</h1>
+          {clearBtn}
+        </div>
+      )}
+
+      {err && <p className="error">{err}</p>}
+
+      <div className={embedded ? '' : 'panel'}>
+        {items.length === 0 && <p className="muted">No new notifications.</p>}
+        {items.map((n, i) => {
+          const Icon = ICON[n.kind] || Bell;
+          return (
+            <div key={i} className={'nt-item ' + n.kind}>
+              <div className="nt-icon"><Icon size={20} /></div>
+              <div className="nt-body">
+                <span>{n.text}</span>
+                {n.at && <small className="muted">{String(n.at).slice(0, 16).replace('T', ' ')}</small>}
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
