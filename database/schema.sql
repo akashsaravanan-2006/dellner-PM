@@ -1,4 +1,3 @@
-CREATE DATABASE IF NOT EXISTS dellner_pm;
 USE dellner_pm;
 
 CREATE TABLE IF NOT EXISTS users (
@@ -48,4 +47,3 @@ CREATE TABLE IF NOT EXISTS leaves (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
--- Users (Akash, Charles, Abi, Elango) are created automatically with hashed passwords when the server first starts.
