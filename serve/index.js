@@ -553,5 +553,12 @@ async function migrate() {
     console.log('First 4 users created (Charles is admin)');
   }
   await migrate();
-  app.listen(process.env.PORT || 5000, () => console.log('API running on port ' + (process.env.PORT || 5000)));
+  if (!process.env.VERCEL) {
+  app.listen(process.env.PORT || 5000, () => {
+    console.log('API running on port ' + (process.env.PORT || 5000));
+  });
+}
+})();
+
+module.exports = app;
 })();
