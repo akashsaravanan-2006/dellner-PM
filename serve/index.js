@@ -5,7 +5,8 @@ const mysql = require('mysql2/promise');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
-
+const fs = require('fs');
+const path = require('path');
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: '3mb' }));
@@ -13,10 +14,14 @@ app.use(express.json({ limit: '3mb' }));
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } }); // 10 MB per file
 
 const db = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASS || '',
-  database: process.env.DB_NAME || 'dellner_pm',
+  host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT || 4000),
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_NAME,
+  ssl: {
+    ca: fs.readFileSync(path.join(__dirname, 'ca.pem')),
+  },
   dateStrings: true,
   connectionLimit: 10,
 });
